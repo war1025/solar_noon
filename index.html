@@ -56,7 +56,7 @@ function solar_time(longitude) {
 }
 
 function watch_location() {
-   navigator.geolocation.watchCurrentPosition((pos) => {
+   navigator.geolocation.watchPosition((pos) => {
       solar_pos.longitude = pos.coords.longitude;
       update_time();
    });
