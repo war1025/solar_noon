@@ -1,0 +1,56 @@
+
+<html>
+<head>
+<script>
+function calc_d(date) {
+   let y = date.getUTCFullYear();
+   let d = Math.floor((date - Date.UTC(y, 0, 1)) / (1000 * 60 * 60 * 24));
+
+   return 6.24004077 + 0.01720197 * (365.25 * (y - 2000) + d );
+}
+
+function calc_et(date) {
+   let d = calc_d(date);
+
+   return -7.659 * Math.sin(d) + 9.863 * Math.sin( (2 * d) +  3.5932);
+}
+
+function calc_solar_noon(date, longitude) {
+   let et = calc_et(date);
+   let noon_today_utc = Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      12,
+      et
+   );
+
+   let solar_noon = new Date(
+      noon_today_utc + (-1 * (longitude / 360)) * 24 * 60 * 60 * 1000
+   );
+
+   return solar_noon;
+}
+
+function solar_time(longitude) {
+   today = new Date(Date.now());
+
+   let solar_noon = calc_solar_noon(today, longitude);
+
+   let today_noon = Date.UTC(
+      today.getUTCFullYear(),
+      today.getUTCMonth(),
+      today.getUTCDate(),
+      12
+   );
+
+   let offset = solar_noon - today_noon;
+
+   return new Date(Date.now() - offset).toUTCString();
+}
+</script>
+   </head>
+   <body>
+   Hello!
+   </body>
+   </html>
