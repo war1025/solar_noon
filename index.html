@@ -2,6 +2,11 @@
 <html>
 <head>
 <script>
+
+let solar_pos = {
+   longitude: null
+}
+
 function calc_d(date) {
    let y = date.getUTCFullYear();
    let d = Math.floor((date - Date.UTC(y, 0, 1)) / (1000 * 60 * 60 * 24));
@@ -49,16 +54,19 @@ function solar_time(longitude) {
    return new Date(Date.now() - offset).toUTCString();
 }
 
-function get_location() {
-   navigator.geolocation.getCurrentPosition((pos) => {
-      update_time(pos.coords.longitude);
+function watch_location() {
+   navigator.geolocation.watchCurrentPosition((pos) => {
+      solar_pos.longitude = pos.coords.longitude;
+      update_time();
    });
 }
 
-function update_time(longitude) {
-   let time = solar_time(longitude)
+function update_time() {
+   if (solar_pos.longitude !== null) {
+      let time = solar_time(solar_pos.longitude)
 
-   document.getElementById("time").innerText = time;
+      document.getElementById("time").innerText = time;
+   }
 }
 
 </script>
@@ -66,7 +74,8 @@ function update_time(longitude) {
    <body>
       <div id="time">Waiting on location</div>
       <script>
-         get_location();
+         watch_location();
+         setInterval(update_time, 15 * 1000);
       </script>
    </body>
    </html>
