@@ -48,9 +48,18 @@ function solar_time(longitude) {
 
    return new Date(Date.now() - offset).toUTCString();
 }
+
+function get_location() {
+   navigator.geolocation.getCurrentPosition((pos) => {
+      console.log("Positon:", pos);
+   });
+}
 </script>
    </head>
    <body>
-   Hello!
+      <div id="time">Hello!</div>
+      <script>
+         get_location();
+      </script>
    </body>
    </html>
