@@ -51,13 +51,20 @@ function solar_time(longitude) {
 
 function get_location() {
    navigator.geolocation.getCurrentPosition((pos) => {
-      console.log("Positon:", pos);
+      update_time(pos.coords.longitude);
    });
 }
+
+function update_time(longitude) {
+   let time = solar_time(longitude)
+
+   document.getElementById("time").innerText = time;
+}
+
 </script>
    </head>
    <body>
-      <div id="time">Hello!</div>
+      <div id="time">Waiting on location</div>
       <script>
          get_location();
       </script>
