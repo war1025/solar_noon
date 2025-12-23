@@ -131,10 +131,10 @@ function calc_sunrise_sunset(date, latitude, longitude) {
    };
 }
 
-function solar_time(longitude) {
+function solar_time(latitude, longitude) {
    today = new Date(Date.now());
 
-   let solar_noon = calc_solar_noon(today, longitude);
+   let solar_times = calc_sunrise_sunset(today, latitude, longitude);
 
    let today_noon = Date.UTC(
       today.getUTCFullYear(),
@@ -143,9 +143,13 @@ function solar_time(longitude) {
       12
    );
 
-   let offset = solar_noon - today_noon;
+   let offset = solar_times["solar_noon"] - today_noon;
 
-   return new Date(Date.now() - offset);
+   return {
+      "now" : new Date(Date.now() - offset),
+      "sunrise" : new Date(solar_times["sunrise"].getTime() - offset),
+      "sunset" : new Date(solar_times["sunset"].getTime() - offset),
+   };
 }
 
 function watch_location() {
@@ -172,18 +176,12 @@ function format_time(date) {
 
 function update_time() {
    if (solar_pos.longitude !== null) {
-      let time = solar_time(solar_pos.longitude)
+      let times = solar_time(solar_pos.latitude, solar_pos.longitude)
 
-      document.getElementById("time").innerText = format_time(time);
+      document.getElementById("time").innerText = format_time(times["now"]);
 
-      let sunrise_sunset = calc_sunrise_sunset(
-        new Date(),
-        solar_pos.latitude,
-        solar_pos.longitude
-      );
-
-      document.getElementById("sunrise").innerText = format_time(sunrise_sunset["sunrise"]);
-      document.getElementById("sunset").innerText = format_time(sunrise_sunset["sunset"]);
+      document.getElementById("sunrise").innerText = format_time(times["sunrise"]);
+      document.getElementById("sunset").innerText = format_time(times["sunset"]);
    }
 }
 
