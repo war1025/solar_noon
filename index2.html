@@ -147,8 +147,8 @@ function solar_time(latitude, longitude) {
 
    return {
       "now" : new Date(Date.now() - offset),
-      "sunrise" : new Date(solar_times["sunrise"].getTime() - offset),
-      "sunset" : new Date(solar_times["sunset"].getTime() - offset),
+      "sunrise" : new Date(solar_times["sunrise"].getTime() + offset),
+      "sunset" : new Date(solar_times["sunset"].getTime() + offset),
    };
 }
 
