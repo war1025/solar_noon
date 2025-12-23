@@ -1,0 +1,202 @@
+
+<html>
+<head>
+   <title>Let Your Noon Be Noon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Reset and basic styling */
+        * {
+            margin: 0;
+            margin-top: 3rem;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;        /* Horizontal center */
+            align-items: start;            /* Vertical center */
+            background-color: #f0f4f8;      /* Soft light background */
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: #333;
+        }
+
+        .date-display {
+            font-size: 2.5rem;              /* Large on desktop */
+            font-weight: 500;
+            text-align: center;
+            letter-spacing: 1px;
+            line-height: 1.4;
+            padding: 2rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);    /* Nice glass effect on supported browsers */
+        }
+
+        /* Responsive adjustments for phones */
+        @media (max-width: 768px) {
+            .date-display {
+                font-size: 2rem;            /* Slightly smaller on tablets/phones */
+                padding: 1.5rem;
+                border-radius: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .date-display {
+                font-size: 1.8rem;          /* Even smaller on small phones */
+                padding: 1rem 1.5rem;
+            }
+        }
+    </style>
+<script>
+
+let solar_pos = {
+   latitude: null,
+   longitude: null
+}
+
+function calc_d(date) {
+   let y = date.getUTCFullYear();
+   let d = Math.floor((date - Date.UTC(y, 0, 0)) / (1000 * 60 * 60 * 24));
+
+   return 6.24004077 + 0.01720197 * (365.25 * (y - 2000) + d );
+}
+
+function calc_et(date) {
+   let d = calc_d(date);
+
+   return -7.659 * Math.sin(d) + 9.863 * Math.sin( (2 * d) +  3.5932);
+}
+
+function calc_declination(date) {
+   let y = date.getUTCFullYear();
+   let d = Math.floor((date - Date.UTC(y, 0, 0)) / (1000 * 60 * 60 * 24));
+
+   return -23.45 * Math.cos((2*Math.PI) * ((356 + 10) / 365))
+}
+
+function deg_to_rad(deg) {
+   return (Math.PI / 180) * deg;
+}
+
+function rad_to_deg(rad) {
+   return (180 / Math.PI) * rad;
+}
+
+function calc_hour_angle(date, latitude) {
+   let decl = calc_declination(date);
+
+   let lat_rad = deg_to_rad(latitude);
+   let decl_rad = deg_to_rad(decl);
+
+
+   let hour_angle_rad = Math.acos(
+      (-1 * Math.tan(lat_rad) * Math.tan(decl_rad))
+      + (Math.cos(deg_to_rad(90.833)) / (Math.cos(lat_rad) * Math.cos(decl_rad)) )
+   );
+
+   return rad_to_deg(hour_angle_rad);
+}
+
+function calc_solar_noon(date, longitude) {
+   let et = calc_et(date);
+   let noon_today_utc = Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate(),
+      12,
+      et
+   );
+
+   let solar_noon = new Date(
+      noon_today_utc + (-1 * (longitude / 360)) * 24 * 60 * 60 * 1000
+   );
+
+   return solar_noon;
+}
+
+function calc_sunrise_sunset(date, latitude, longitude) {
+   let solar_noon = calc_solar_noon(date, longitude);
+
+   let hour_angle = calc_hour_angle(date, latitude);
+
+   let hour_offset_ms = ((hour_angle / 360) * 24 * 60 * 60 * 1000;
+
+   return {
+      "sunrise" : new Date(solar_noon.getTime() - hour_offset_msg),
+      "solar_noon" : solar_noon,
+      "sunset" : new Date(solar_noon.getTime() + hour_offset_msg)
+   };
+
+function solar_time(longitude) {
+   today = new Date(Date.now());
+
+   let solar_noon = calc_solar_noon(today, longitude);
+
+   let today_noon = Date.UTC(
+      today.getUTCFullYear(),
+      today.getUTCMonth(),
+      today.getUTCDate(),
+      12
+   );
+
+   let offset = solar_noon - today_noon;
+
+   return new Date(Date.now() - offset);
+}
+
+function watch_location() {
+   navigator.geolocation.watchPosition((pos) => {
+      solar_pos.longitude = pos.coords.longitude;
+      solar_pos.latitude = pos.coords.latitude;
+      update_time();
+   });
+}
+
+function format_time(date) {
+   return date.toLocaleString("en-US", {
+      timeZone: 'UTC',
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+   });
+}
+
+function update_time() {
+   if (solar_pos.longitude !== null) {
+      let time = solar_time(solar_pos.longitude)
+
+      document.getElementById("time").innerText = format_time(time);
+
+      let sunrise_sunset = calc_sunrise_sunset(
+        new Date(),
+        solar_pos.latitude,
+        solar_pos.longitude
+      );
+
+      document.getElementById("sunrise").innerText = format_time(sunrise_sunset["sunrise"]);
+      document.getElementById("sunset").innerText = format_time(sinrise_sunset["sunset"]);
+   }
+}
+
+
+
+</script>
+   </head>
+   <body>
+      <div id="time" class="date-display">Waiting on location</div>
+      <div id="sunrise" class="date-display">Waiting on location</div>
+      <div id="sunset" class="date-display">Waiting on location</div>
+      <script>
+         watch_location();
+         setInterval(update_time, 1000);
+      </script>
+   </body>
+</html>
