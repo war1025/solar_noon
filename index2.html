@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html>
 <head>
    <title>Let Your Noon Be Noon</title>
@@ -125,9 +125,9 @@ function calc_sunrise_sunset(date, latitude, longitude) {
    let hour_offset_ms = (hour_angle / 360) * 24 * 60 * 60 * 1000;
 
    return {
-      "sunrise" : new Date(solar_noon.getTime() - hour_offset_msg),
+      "sunrise" : new Date(solar_noon.getTime() - hour_offset_ms),
       "solar_noon" : solar_noon,
-      "sunset" : new Date(solar_noon.getTime() + hour_offset_msg)
+      "sunset" : new Date(solar_noon.getTime() + hour_offset_ms)
    };
 }
 
