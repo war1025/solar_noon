@@ -52,6 +52,8 @@
     </style>
 <script>
 
+let ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
 let solar_pos = {
    latitude: null,
    longitude: null
@@ -59,7 +61,7 @@ let solar_pos = {
 
 function calc_d(date) {
    let y = date.getUTCFullYear();
-   let d = Math.floor((date - Date.UTC(y, 0, 0)) / (1000 * 60 * 60 * 24));
+   let d = Math.floor((date - Date.UTC(y, 0, 0)) / ONE_DAY_MS);
 
    return 6.24004077 + 0.01720197 * (365.25 * (y - 2000) + d );
 }
@@ -72,7 +74,7 @@ function calc_et(date) {
 
 function calc_declination(date) {
    let y = date.getUTCFullYear();
-   let d = Math.floor((date - Date.UTC(y, 0, 0)) / (1000 * 60 * 60 * 24));
+   let d = Math.floor((date - Date.UTC(y, 0, 0)) / ONE_DAY_MS);
 
    return -23.45 * Math.cos((2*Math.PI) * ((356 + 10) / 365))
 }
@@ -111,7 +113,7 @@ function calc_solar_noon(date, longitude) {
    );
 
    let solar_noon = new Date(
-      noon_today_utc + (-1 * (longitude / 360)) * 24 * 60 * 60 * 1000
+      noon_today_utc + (-1 * (longitude / 360)) * ONE_DAY_MS
    );
 
    return solar_noon;
@@ -122,7 +124,7 @@ function calc_sunrise_sunset(date, latitude, longitude) {
 
    let hour_angle = calc_hour_angle(date, latitude);
 
-   let hour_offset_ms = (hour_angle / 360) * 24 * 60 * 60 * 1000;
+   let hour_offset_ms = (hour_angle / 360) * ONE_DAY_MS;
 
    return {
       "sunrise" : new Date(solar_noon.getTime() - hour_offset_ms),
@@ -131,22 +133,66 @@ function calc_sunrise_sunset(date, latitude, longitude) {
    };
 }
 
-function solar_time(latitude, longitude) {
-   today = new Date(Date.now());
+function scaled_time(latitude, longitude) {
+   let now = new Date();
 
-   let solar_times = calc_sunrise_sunset(today, latitude, longitude);
+   let solar_times = calc_sunrise_sunset(now, latitude, longitude);
 
-   let today_noon = Date.UTC(
-      today.getUTCFullYear(),
-      today.getUTCMonth(),
-      today.getUTCDate(),
-      12
-   );
+   let base_time;
+   let start;
+   let end;
 
-   let offset = solar_times["solar_noon"] - today_noon;
+   if (now < solar_times.sunrise) {
+      let solar_times_yesterday = calc_sunrise_sunset(
+         new Date(now.getTime() - ONE_DAY_MS),
+         latitude,
+         longitude
+      );
+
+      base_time = new Date(
+        Date.UTC(
+           now.getFullYear(),
+           now.getMonth()
+           now.getDate() - 1,
+           18
+        )
+      );
+      start = solar_times_yesterday.sunset;
+      end = solar_times.sunrise;
+   } else if(now < solar_times.sunset) {
+      base_time = new Date(
+        Date.UTC(
+           now.getFullYear(),
+           now.getMonth()
+           now.getDate(),
+           6
+        )
+      );
+      start = solar_times.sunrise;
+      end = solar_times.sunset;
+   } else {
+      let solar_times_tomorrow = calc_sunrise_sunset(
+         new Date(now.getTime() + ONE_DAY_MS),
+         latitude,
+         longitude
+      );
+
+      base_time = new Date(
+        Date.UTC(
+           now.getFullYear(),
+           now.getMonth()
+           now.getDate(),
+           18
+        )
+      );
+      start = solar_times.sunset;
+      end = solar_times_tomorrow.sunrise;
+   }
+
+   factor = (ONE_DAY_MS / 2) / (end.getTime() - start.getTime());
 
    return {
-      "now" : new Date(Date.now() - offset),
+      "now" : new Date(base_time.getTime() + ((now.getTime() - start) * factor)),
       "sunrise" : new Date(solar_times["sunrise"].getTime() - offset),
       "sunset" : new Date(solar_times["sunset"].getTime() - offset),
    };
