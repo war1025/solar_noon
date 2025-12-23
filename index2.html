@@ -222,7 +222,7 @@ function format_time(date) {
 
 function update_time() {
    if (solar_pos.longitude !== null) {
-      let times = solar_time(solar_pos.latitude, solar_pos.longitude)
+      let times = scaled_time(solar_pos.latitude, solar_pos.longitude)
 
       document.getElementById("time").innerText = format_time(times["now"]);
 
