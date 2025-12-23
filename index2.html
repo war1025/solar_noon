@@ -191,11 +191,7 @@ function scaled_time(latitude, longitude) {
 
    factor = (ONE_DAY_MS / 2) / (end.getTime() - start.getTime());
 
-   return {
-      "now" : new Date(base_time.getTime() + ((now.getTime() - start) * factor)),
-      "sunrise" : new Date(solar_times["sunrise"].getTime() - offset),
-      "sunset" : new Date(solar_times["sunset"].getTime() - offset),
-   };
+   return new Date(base_time.getTime() + ((now.getTime() - start) * factor));
 }
 
 function watch_location() {
@@ -222,12 +218,9 @@ function format_time(date) {
 
 function update_time() {
    if (solar_pos.longitude !== null) {
-      let times = scaled_time(solar_pos.latitude, solar_pos.longitude)
+      let time = scaled_time(solar_pos.latitude, solar_pos.longitude)
 
-      document.getElementById("time").innerText = format_time(times["now"]);
-
-      document.getElementById("sunrise").innerText = format_time(times["sunrise"]);
-      document.getElementById("sunset").innerText = format_time(times["sunset"]);
+      document.getElementById("time").innerText = format_time(time);
    }
 }
 
@@ -237,8 +230,6 @@ function update_time() {
    </head>
    <body>
       <div id="time" class="date-display">Waiting on location</div>
-      <div id="sunrise" class="date-display">Waiting on location</div>
-      <div id="sunset" class="date-display">Waiting on location</div>
       <script>
          watch_location();
          setInterval(update_time, 1000);
