@@ -122,13 +122,14 @@ function calc_sunrise_sunset(date, latitude, longitude) {
 
    let hour_angle = calc_hour_angle(date, latitude);
 
-   let hour_offset_ms = ((hour_angle / 360) * 24 * 60 * 60 * 1000;
+   let hour_offset_ms = (hour_angle / 360) * 24 * 60 * 60 * 1000;
 
    return {
       "sunrise" : new Date(solar_noon.getTime() - hour_offset_msg),
       "solar_noon" : solar_noon,
       "sunset" : new Date(solar_noon.getTime() + hour_offset_msg)
    };
+}
 
 function solar_time(longitude) {
    today = new Date(Date.now());
