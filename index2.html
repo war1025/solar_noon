@@ -149,27 +149,27 @@ function scaled_time(latitude, longitude) {
          longitude
       );
 
+      start = solar_times_yesterday.sunset;
+      end = solar_times.sunrise;
       base_time = new Date(
         Date.UTC(
-           now.getFullYear(),
-           now.getMonth(),
-           now.getDate() - 1,
+           start.getFullYear(),
+           start.getMonth(),
+           start.getDate(),
            18
         )
       );
-      start = solar_times_yesterday.sunset;
-      end = solar_times.sunrise;
    } else if(now < solar_times.sunset) {
+      start = solar_times.sunrise;
+      end = solar_times.sunset;
       base_time = new Date(
         Date.UTC(
-           now.getFullYear(),
-           now.getMonth(),
-           now.getDate(),
+           start.getFullYear(),
+           start.getMonth(),
+           start.getDate(),
            6
         )
       );
-      start = solar_times.sunrise;
-      end = solar_times.sunset;
    } else {
       let solar_times_tomorrow = calc_sunrise_sunset(
          new Date(now.getTime() + ONE_DAY_MS),
@@ -177,16 +177,16 @@ function scaled_time(latitude, longitude) {
          longitude
       );
 
+      start = solar_times.sunset;
+      end = solar_times_tomorrow.sunrise;
       base_time = new Date(
         Date.UTC(
-           now.getFullYear(),
-           now.getMonth(),
-           now.getDate(),
+           start.getFullYear(),
+           start.getMonth(),
+           start.getDate(),
            18
         )
       );
-      start = solar_times.sunset;
-      end = solar_times_tomorrow.sunrise;
    }
 
    factor = (ONE_DAY_MS / 2) / (end.getTime() - start.getTime());
