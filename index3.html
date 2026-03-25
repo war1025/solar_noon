@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Twitter On This Day Links</title>
+   <style>
+      body {
+         font-family: Arial, sans-serif;
+         text-align: center;
+         padding: 50px;
+         background-color: #f4f4f4;
+      }
+      input[type="text"] {
+         padding: 12px;
+         font-size: 18px;
+         width: 300px;
+         border: 2px solid #333;
+         border-radius: 8px;
+      }
+      button {
+         padding: 12px 24px;
+         font-size: 18px;
+         margin-left: 10px;
+         background-color: #333;
+         color: white;
+         border: none;
+         border-radius: 8px;
+         cursor: pointer;
+      }
+      button:hover {
+         background-color: #555;
+      }
+      #result {
+         margin-top: 40px;
+         font-size: 24px;
+         min-height: 50px;
+      }
+   </style>
+</head>
+<body>
+
+   <h1>Past five years on this day</h1>
+
+   <input type="text" id="userInput" placeholder="Twitter username">
+   <button onclick="buildLinks()">Go</button>
+
+   <div id="result"></div>
+
+   <script>
+      function buildLinks() {
+         const username = document.getElementById('userInput').value.trim();
+         const resultDiv = document.getElementById('result');
+
+         if (username === "") {
+            resultDiv.innerHTML = "";
+            return;
+         }
+
+         const today = new Date();
+
+         const year = today.getFullYear();
+         const month = `${today.getMonth() + 1}`.padStart(2, '0');
+         const day = `${today.getDate()}`.padStart(2, '0');
+
+         const tomorrow = new Date();
+         tomorrow.setDate(today.getDate() + 1);
+
+         const t_year = tomorrow.getFullYear();
+         const t_month = `${tomorrow.getMonth() + 1}`.padStart(2, '0');
+         const t_day = `${tomorrow.getDate()}`.padStart(2, '0');
+
+         // Here’s where the magic happens with your text:
+         resultDiv.innerHTML = `
+            <a href="https://x.com/search?q=from%3A${username}%20since%3A${year -1}-${month}-${day}%20until%3A${t_year - 1}-${t_month}-${t_day}&src=typed_query&f=live">${year -1}</a><br/>
+            <a href="https://x.com/search?q=from%3A${username}%20since%3A${year -2}-${month}-${day}%20until%3A${t_year - 2}-${t_month}-${t_day}&src=typed_query&f=live">${year -2}</a><br/>
+            <a href="https://x.com/search?q=from%3A${username}%20since%3A${year -3}-${month}-${day}%20until%3A${t_year - 3}-${t_month}-${t_day}&src=typed_query&f=live">${year -3}</a><br/>
+            <a href="https://x.com/search?q=from%3A${username}%20since%3A${year -4}-${month}-${day}%20until%3A${t_year - 4}-${t_month}-${t_day}&src=typed_query&f=live">${year -4}</a><br/>
+            <a href="https://x.com/search?q=from%3A${username}%20since%3A${year -5}-${month}-${day}%20until%3A${t_year - 5}-${t_month}-${t_day}&src=typed_query&f=live">${year -5}</a><br/>
+         `;
+      }
+
+      // Bonus: Press Enter key to trigger the button
+      document.getElementById('userInput').addEventListener('keypress', function(e) {
+         if (e.key === 'Enter') {
+            buildLinks();
+         }
+      });
+   </script>
+
+</body>
+</html>
